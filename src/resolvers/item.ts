@@ -6,6 +6,8 @@ import {
   Field,
   ObjectType,
   InputType,
+  Query,
+  Int,
 } from "type-graphql";
 
 @InputType()
@@ -28,15 +30,18 @@ class ItemInput {
 
 @Resolver()
 export class ItemResolver {
-  //   @Mutation(() => Item)
-  //   createItem(
-  //     @Arg("title", () => String)
-  //     title: string
-  //   ): Promise<Item | null> {
-  //     return Item.create({
-  //       title: title,
-  //     }).save();
-  //   }
+  @Query(() => Item, { nullable: true })
+  async item(@Arg("id", () => Int) id: number) {
+    const item = await Item.findOne({ id });
+    return item;
+  }
+
+  @Query(() => [Item], { nullable: true })
+  async items(): Promise<Item[] | undefined> {
+    const items = await Item.find();
+    return items;
+  }
+
   @Mutation(() => Item)
   async createItem(
     @Arg("input")
