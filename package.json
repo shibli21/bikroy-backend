@@ -1,13 +1,38 @@
 {
-  "name": "sickfit--react-graphql-backend",
+  "name": "sickfit-backend",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "deploy": "prisma deploy -e variables.env"
+    "dev": "nodemon --exec ts-node src/index.ts"
   },
-  "keywords": [],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shibli21/sickfit--react-graphql-backend.git"
+  },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/shibli21/sickfit--react-graphql-backend/issues"
+  },
+  "homepage": "https://github.com/shibli21/sickfit--react-graphql-backend#readme",
+  "dependencies": {
+    "apollo-server-express": "^2.17.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "graphql": "^15.3.0",
+    "import": "0.0.6",
+    "nodemon": "^2.0.4",
+    "pg": "^8.3.3",
+    "reflect-metadata": "^0.1.13",
+    "type-graphql": "^1.0.0",
+    "typeorm": "^0.2.26"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.7",
+    "@types/express": "^4.17.8",
+    "@types/node": "^14.6.4",
+    "ts-node": "^9.0.0",
+    "typescript": "^4.0.2"
+  }
 }
