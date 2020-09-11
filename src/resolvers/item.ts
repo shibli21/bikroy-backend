@@ -21,10 +21,10 @@ class ItemInput {
   @Field()
   price: number;
 
-  @Field()
+  @Field({ nullable: true })
   image: string;
 
-  @Field()
+  @Field({ nullable: true })
   largeImage: string;
 }
 

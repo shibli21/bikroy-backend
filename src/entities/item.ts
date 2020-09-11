@@ -23,15 +23,15 @@ export class Item extends BaseEntity {
   description!: string;
 
   @Field()
-  @Column()
+  @Column({ type: "int" })
   price!: number;
 
-  @Field()
-  @Column()
+  @Field({ defaultValue: null })
+  @Column({ nullable: true })
   image!: string;
 
-  @Field()
-  @Column()
+  @Field({ defaultValue: null })
+  @Column({ nullable: true })
   largeImage!: string;
 
   //   @Field()
