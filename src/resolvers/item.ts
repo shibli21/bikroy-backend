@@ -1,14 +1,13 @@
-import { Item } from "./../entities/item";
 import {
-  Resolver,
-  Mutation,
   Arg,
   Field,
-  ObjectType,
   InputType,
-  Query,
   Int,
+  Mutation,
+  Query,
+  Resolver,
 } from "type-graphql";
+import { Item } from "./../entities/item";
 
 @InputType()
 class ItemInput {
