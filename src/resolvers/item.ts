@@ -7,6 +7,7 @@ import {
   Query,
   Resolver,
 } from "type-graphql";
+import { getConnection } from "typeorm";
 import { Item } from "./../entities/item";
 
 @InputType()
@@ -61,5 +62,31 @@ export class ItemResolver {
     await Item.delete({ id });
 
     return true;
+  }
+
+  @Mutation(() => Item, { nullable: true })
+  async updateItem(
+    @Arg("id", () => Int) id: number,
+    @Arg("title", () => String) title: string,
+    @Arg("description", () => String) description: string,
+    @Arg("price", () => Int) price: number
+  ): Promise<Item | null> {
+    // const isItem = Item.findOne({ id });
+
+    // if (!isItem) {
+    //   return throw new Error("No item found");
+    // }
+
+    const item = await getConnection()
+      .createQueryBuilder()
+      .update(Item)
+      .set({ title, description, price })
+      .where("id = :id", {
+        id: id,
+      })
+      .returning("*")
+      .execute();
+
+    return item.raw[0];
   }
 }
