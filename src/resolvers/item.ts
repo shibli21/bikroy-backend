@@ -21,10 +21,10 @@ class ItemInput {
   @Field()
   price: number;
 
-  @Field({ nullable: true })
+  @Field()
   image: string;
 
-  @Field({ nullable: true })
+  @Field()
   largeImage: string;
 }
 
@@ -71,12 +71,6 @@ export class ItemResolver {
     @Arg("description", () => String) description: string,
     @Arg("price", () => Int) price: number
   ): Promise<Item | null> {
-    // const isItem = Item.findOne({ id });
-
-    // if (!isItem) {
-    //   return throw new Error("No item found");
-    // }
-
     const item = await getConnection()
       .createQueryBuilder()
       .update(Item)

@@ -1,4 +1,4 @@
-import { Field, registerEnumType } from "type-graphql";
+import { Field, ObjectType, registerEnumType } from "type-graphql";
 import {
   BaseEntity,
   Column,
@@ -7,7 +7,7 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 
-enum Permissions {
+export enum Permissions {
   ADMIN,
   USER,
   ITEMCREATE,
@@ -20,6 +20,7 @@ registerEnumType(Permissions, {
 });
 
 @Entity()
+@ObjectType()
 export class User extends BaseEntity {
   @Field()
   @PrimaryGeneratedColumn()
@@ -33,20 +34,24 @@ export class User extends BaseEntity {
   @Column({ unique: true })
   email!: string;
 
-  @Field({ nullable: true })
+  @Field()
   @Column()
-  resetToken?: string;
+  password!: string;
 
   @Field({ nullable: true })
-  @Column()
-  resetTokenExpiry?: string;
+  @Column({ nullable: true })
+  resetToken: string;
 
-  @Field(() => Permissions, { nullable: true })
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  resetTokenExpiry: string;
+
+  @Field(() => Permissions)
   @Column({
     type: "enum",
     enum: Permissions,
   })
-  permission?: [Permissions];
+  permission: [Permissions];
 
   @Field(() => String)
   @UpdateDateColumn()

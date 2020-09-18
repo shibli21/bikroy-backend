@@ -1,14 +1,16 @@
+import { ApolloServer } from "apollo-server-express";
+import cookieParser from "cookie-parser";
+import cors from "cors";
+import express from "express";
+import path from "path";
+import "reflect-metadata";
+import { buildSchema } from "type-graphql";
+import { createConnection } from "typeorm";
 import { Item } from "./entities/item";
 import { User } from "./entities/user";
-import cors from "cors";
-import { buildSchema } from "type-graphql";
-import { ApolloServer } from "apollo-server-express";
-import express from "express";
-import { UserResolver } from "./resolvers/user";
-import "reflect-metadata";
-import { createConnection } from "typeorm";
-import path from "path";
 import { ItemResolver } from "./resolvers/item";
+import { UserResolver } from "./resolvers/user";
+import { MyContext } from "./types/MyContext";
 
 const main = async () => {
   const connection = await createConnection({
@@ -27,11 +29,16 @@ const main = async () => {
   const app = express();
 
   app.use(cors({ origin: "http://localhost:3000", credentials: true }));
+  app.use(cookieParser());
 
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
       resolvers: [UserResolver, ItemResolver],
       validate: false,
+    }),
+    context: ({ req, res }): MyContext => ({
+      req,
+      res,
     }),
   });
 
