@@ -61,7 +61,7 @@ export class UserResolver {
 
     let user;
     try {
-      getConnection()
+      await getConnection()
         .createQueryBuilder()
         .insert()
         .into(User)
@@ -73,10 +73,10 @@ export class UserResolver {
         })
         .execute();
 
-      const result = await User.findOne({ where: { email: options.email } });
-      user = result as any;
+      user = await User.findOne({ where: { email: options.email } });
+      // user = result ;
 
-      const token = jwt.sign({ userId: result?.id }, "asdasdasdasdasd");
+      const token = jwt.sign({ userId: user?.id }, "asdasdasdasdasd");
       res.cookie("token", token, {
         httpOnly: true,
         maxAge: 100000,
@@ -84,11 +84,11 @@ export class UserResolver {
     } catch (error) {
       console.log(error);
 
-      if (error.code === "ER_DUP_ENTRY") {
+      if (error.code === "23505") {
         return {
           errors: [
             {
-              field: "username",
+              field: "email",
               message: "already exists ",
             },
           ],
