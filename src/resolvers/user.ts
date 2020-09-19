@@ -1,4 +1,4 @@
-import { hash } from "argon2";
+import { hash, verify } from "argon2";
 import jwt from "jsonwebtoken";
 import "reflect-metadata";
 import {
@@ -46,10 +46,10 @@ class UserInputType {
 
 @Resolver()
 export class UserResolver {
-  @Query(() => String)
-  hello() {
-    return "HELLO YOU";
-  }
+  // @Query(() => User)
+  // async me(@Ctx() { req }: MyContext) {
+  //   return User;
+  // }
 
   @Mutation(() => UserResponse)
   async register(
@@ -96,6 +96,38 @@ export class UserResolver {
       }
     }
 
+    return { user };
+  }
+
+  @Mutation(() => UserResponse)
+  async login(
+    @Arg("eamil") eamil: string,
+    @Arg("password") password: string,
+    @Ctx() { res }: MyContext
+  ): Promise<UserResponse> {
+    const user = await User.findOne({ email: eamil });
+    if (!user) {
+      return { errors: [{ field: "email", message: "user doesn't exists" }] };
+    }
+
+    const valid = await verify(user.password, password);
+
+    if (!valid) {
+      return {
+        errors: [
+          {
+            field: "password",
+            message: "Password incorrect",
+          },
+        ],
+      };
+    }
+
+    const token = jwt.sign({ userId: user?.id }, "asdasdasdasdasd");
+    res.cookie("token", token, {
+      httpOnly: true,
+      maxAge: 100000,
+    });
     return { user };
   }
 }
