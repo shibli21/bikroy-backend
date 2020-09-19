@@ -14,6 +14,8 @@ import {
 import { getConnection } from "typeorm";
 import { Permissions, User } from "./../entities/user";
 import { MyContext } from "../types/MyContext";
+import jwt_decode from "jwt-decode";
+import { json } from "express";
 
 @ObjectType()
 class FieldError {
@@ -44,12 +46,36 @@ class UserInputType {
   password: string;
 }
 
+const jwtSecret = "shibli";
+
+@Resolver()
 @Resolver()
 export class UserResolver {
-  // @Query(() => User)
-  // async me(@Ctx() { req }: MyContext) {
-  //   return User;
-  // }
+  @Query(() => User, { nullable: true })
+  async me(@Ctx() { req }: MyContext) {
+    const { token } = await req.cookies;
+    let userId;
+    if (token) {
+      const response = jwt.verify(token, jwtSecret);
+      const idS = JSON.stringify(response);
+      const idP = JSON.parse(idS);
+      userId = idP.userId;
+    }
+
+    if (!userId) {
+      return null;
+    }
+
+    const user = await User.findOne({ id: userId });
+
+    return user;
+  }
+
+  @Mutation(() => Boolean)
+  logout(@Ctx() { res }: MyContext) {
+    res.clearCookie("token");
+    return true;
+  }
 
   @Mutation(() => UserResponse)
   async register(
@@ -76,7 +102,7 @@ export class UserResolver {
       user = await User.findOne({ where: { email: options.email } });
       // user = result ;
 
-      const token = jwt.sign({ userId: user?.id }, "asdasdasdasdasd");
+      const token = jwt.sign({ userId: user?.id }, jwtSecret);
       res.cookie("token", token, {
         httpOnly: true,
         maxAge: 100000,
@@ -101,11 +127,11 @@ export class UserResolver {
 
   @Mutation(() => UserResponse)
   async login(
-    @Arg("eamil") eamil: string,
+    @Arg("email") email: string,
     @Arg("password") password: string,
     @Ctx() { res }: MyContext
   ): Promise<UserResponse> {
-    const user = await User.findOne({ email: eamil });
+    const user = await User.findOne({ email: email });
     if (!user) {
       return { errors: [{ field: "email", message: "user doesn't exists" }] };
     }
@@ -123,10 +149,10 @@ export class UserResolver {
       };
     }
 
-    const token = jwt.sign({ userId: user?.id }, "asdasdasdasdasd");
+    const token = jwt.sign({ userId: user?.id }, jwtSecret);
     res.cookie("token", token, {
       httpOnly: true,
-      maxAge: 100000,
+      maxAge: 100000000000,
     });
     return { user };
   }
