@@ -11,11 +11,13 @@ import {
   Query,
   Resolver,
 } from "type-graphql";
-import { getConnection } from "typeorm";
+import { getConnection, MoreThan } from "typeorm";
 import { Permissions, User } from "./../entities/user";
 import { MyContext } from "../types/MyContext";
 import jwt_decode from "jwt-decode";
 import { json } from "express";
+import { randomBytes } from "crypto";
+import { error } from "console";
 
 @ObjectType()
 class FieldError {
@@ -155,5 +157,29 @@ export class UserResolver {
       maxAge: 100000000000,
     });
     return { user };
+  }
+
+  @Mutation(() => String)
+  async requestReset(@Arg("email") email: string): Promise<String> {
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return "no user found";
+    }
+
+    const resetToken = randomBytes(20).toString("hex");
+    const resetTokenExpiry = Date.now() + 3600000;
+
+    await getConnection()
+      .createQueryBuilder()
+      .update(User)
+      .set({
+        resetToken,
+        resetTokenExpiry,
+      })
+      .where({ email: email })
+      .execute();
+
+    return "reset token sent";
   }
 }
