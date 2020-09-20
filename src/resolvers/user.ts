@@ -182,4 +182,38 @@ export class UserResolver {
 
     return "reset token sent";
   }
+
+  @Mutation(() => UserResponse)
+  async resetPassword(
+    @Arg("resetToken") resetToken: string,
+    @Ctx() { res }: MyContext
+  ): Promise<UserResponse> {
+    const resetTokenExpiry = Date.now() - 3600000;
+
+    const user = await User.findOne({
+      where: {
+        resetToken,
+        resetTokenExpiry: MoreThan(resetTokenExpiry),
+      },
+    });
+
+    if (typeof user === "undefined") {
+      return {
+        errors: [
+          {
+            field: "user",
+            message: "user doesn't exists",
+          },
+        ],
+      };
+    }
+
+    const token = jwt.sign({ userId: user?.id }, jwtSecret);
+    res.cookie("token", token, {
+      httpOnly: true,
+      maxAge: 100000000000,
+    });
+
+    return { user };
+  }
 }
