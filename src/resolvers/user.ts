@@ -27,6 +27,14 @@ class FieldError {
   @Field()
   message: string;
 }
+@ObjectType()
+class FieldErrorSuccess {
+  @Field()
+  field: string;
+
+  @Field()
+  message: string;
+}
 
 @ObjectType()
 class UserResponse {
@@ -159,12 +167,15 @@ export class UserResolver {
     return { user };
   }
 
-  @Mutation(() => String)
-  async requestReset(@Arg("email") email: string): Promise<String> {
+  @Mutation(() => FieldErrorSuccess)
+  async requestReset(@Arg("email") email: string): Promise<FieldErrorSuccess> {
     const user = await User.findOne({ email });
 
     if (!user) {
-      return "no user found";
+      return {
+        field: "fail",
+        message: "user not found",
+      };
     }
 
     const resetToken = randomBytes(20).toString("hex");
@@ -180,7 +191,10 @@ export class UserResolver {
       .where({ email: email })
       .execute();
 
-    return "reset token sent";
+    return {
+      field: "success",
+      message: "reset token sent. check your email",
+    };
   }
 
   @Mutation(() => UserResponse)
