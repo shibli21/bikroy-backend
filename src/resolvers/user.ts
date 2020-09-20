@@ -186,6 +186,7 @@ export class UserResolver {
   @Mutation(() => UserResponse)
   async resetPassword(
     @Arg("resetToken") resetToken: string,
+    @Arg("password") password: string,
     @Ctx() { res }: MyContext
   ): Promise<UserResponse> {
     const resetTokenExpiry = Date.now() - 3600000;
@@ -201,14 +202,25 @@ export class UserResolver {
       return {
         errors: [
           {
-            field: "user",
-            message: "user doesn't exists",
+            field: "resetToken",
+            message: "token expired or invalid",
           },
         ],
       };
     }
 
-    const token = jwt.sign({ userId: user?.id }, jwtSecret);
+    const hashedPassword = await hash(password);
+
+    await User.update(
+      { id: user.id },
+      {
+        password: hashedPassword,
+        resetToken: undefined,
+        resetTokenExpiry: undefined,
+      }
+    );
+
+    const token = jwt.sign({ userId: user.id }, jwtSecret);
     res.cookie("token", token, {
       httpOnly: true,
       maxAge: 100000000000,
