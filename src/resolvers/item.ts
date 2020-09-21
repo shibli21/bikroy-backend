@@ -6,9 +6,11 @@ import {
   Mutation,
   Query,
   Resolver,
+  UseMiddleware,
 } from "type-graphql";
 import { getConnection } from "typeorm";
 import { Item } from "./../entities/item";
+import { isAuth } from "./../middleware/isAuth";
 
 @InputType()
 class ItemInput {
@@ -42,6 +44,7 @@ export class ItemResolver {
     return items;
   }
 
+  @UseMiddleware(isAuth)
   @Mutation(() => Item)
   async createItem(
     @Arg("input")
@@ -52,6 +55,7 @@ export class ItemResolver {
     }).save();
   }
 
+  @UseMiddleware(isAuth)
   @Mutation(() => Boolean)
   async deleteItem(@Arg("id", () => Int) id: number) {
     const item = await Item.findOne(id);
@@ -64,6 +68,7 @@ export class ItemResolver {
     return true;
   }
 
+  @UseMiddleware(isAuth)
   @Mutation(() => Item, { nullable: true })
   async updateItem(
     @Arg("id", () => Int) id: number,

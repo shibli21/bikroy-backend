@@ -1,3 +1,4 @@
+import { isAuth } from "./../middleware/isAuth";
 import { hash, verify } from "argon2";
 import jwt from "jsonwebtoken";
 import "reflect-metadata";
@@ -10,6 +11,7 @@ import {
   ObjectType,
   Query,
   Resolver,
+  UseMiddleware,
 } from "type-graphql";
 import { getConnection, MoreThan } from "typeorm";
 import { Permissions, User } from "./../entities/user";
@@ -56,7 +58,7 @@ class UserInputType {
   password: string;
 }
 
-const jwtSecret = "shibli";
+export const jwtSecret = "shibli";
 
 @Resolver()
 @Resolver()
