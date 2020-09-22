@@ -1,4 +1,4 @@
-import { userId } from "./../utils/userId";
+import { getUserId } from "./../utils/getUserId";
 import { MyContext } from "./../types/MyContext";
 import {
   Arg,
@@ -53,17 +53,27 @@ export class ItemResolver {
     @Arg("input") input: ItemInput,
     @Ctx() { req }: MyContext
   ): Promise<Item | null> {
-    const id = await userId(req.cookies.token);
+    const userId = await getUserId(req.cookies.token);
     return Item.create({
       ...input,
-      creatorId: id,
+      creatorId: userId,
     }).save();
   }
 
   @Mutation(() => Boolean)
   @UseMiddleware(isAuth)
-  async deleteItem(@Arg("id", () => Int) id: number) {
-    const item = await Item.findOne(id);
+  async deleteItem(
+    @Arg("id", () => Int) id: number,
+    @Ctx() { req }: MyContext
+  ) {
+    const userId = await getUserId(req.cookies.token);
+    const item = await Item.findOne({
+      where: {
+        id: id,
+        creatorId: userId,
+      },
+    });
+
     if (!item) {
       return false;
     }
