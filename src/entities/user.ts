@@ -3,9 +3,11 @@ import {
   BaseEntity,
   Column,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
+import { Item } from "./item";
 
 export enum Permissions {
   ADMIN,
@@ -49,6 +51,9 @@ export class User extends BaseEntity {
     enum: Permissions,
   })
   permission: [Permissions];
+
+  @OneToMany(() => Item, (item) => item.creator)
+  items: Item[];
 
   @Field(() => String)
   @UpdateDateColumn()

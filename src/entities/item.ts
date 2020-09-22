@@ -3,9 +3,11 @@ import {
   BaseEntity,
   Column,
   Entity,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
+import { User } from "./user";
 
 @ObjectType()
 @Entity()
@@ -34,9 +36,13 @@ export class Item extends BaseEntity {
   @Column({ nullable: true })
   largeImage!: string;
 
-  //   @Field()
-  //   @ManyToOne(() => User, (user) => user.id)
-  //   user!: User;
+  @Field()
+  @Column()
+  creatorId!: number;
+
+  @Field(() => User)
+  @ManyToOne(() => User, (user) => user.items)
+  creator: User;
 
   @Field(() => String)
   @UpdateDateColumn()
