@@ -89,14 +89,18 @@ export class ItemResolver {
     @Arg("id", () => Int) id: number,
     @Arg("title", () => String) title: string,
     @Arg("description", () => String) description: string,
-    @Arg("price", () => Int) price: number
+    @Arg("price", () => Int) price: number,
+    @Ctx() { req }: MyContext
   ): Promise<Item | null> {
+    const userId = await getUserId(req.cookies.token);
+
     const item = await getConnection()
       .createQueryBuilder()
       .update(Item)
       .set({ title, description, price })
-      .where("id = :id", {
+      .where("id = :id and creatorId = :userId", {
         id: id,
+        userId,
       })
       .returning("*")
       .execute();
