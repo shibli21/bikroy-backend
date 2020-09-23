@@ -1,3 +1,4 @@
+import { CartItem } from "./cartItem";
 import { Field, ObjectType, registerEnumType } from "type-graphql";
 import {
   BaseEntity,
@@ -51,6 +52,10 @@ export class User extends BaseEntity {
     enum: Permissions,
   })
   permission: [Permissions];
+
+  @Field(() => CartItem, { defaultValue: [] })
+  @OneToMany(() => CartItem, (cartItem) => cartItem.user)
+  cart: CartItem[];
 
   @OneToMany(() => Item, (item) => item.creator)
   items: Item[];

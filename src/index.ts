@@ -1,3 +1,5 @@
+import { CartItemResolver } from "./resolvers/cartItem";
+import { CartItem } from "./entities/cartItem";
 import { ApolloServer } from "apollo-server-express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
@@ -23,7 +25,7 @@ const main = async () => {
     synchronize: true,
     logging: true,
     migrations: [path.join(__dirname, "./migrations/*")],
-    entities: [User, Item],
+    entities: [User, Item, CartItem],
   });
 
   const app = express();
@@ -33,7 +35,7 @@ const main = async () => {
 
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
-      resolvers: [UserResolver, ItemResolver],
+      resolvers: [UserResolver, ItemResolver, CartItemResolver],
       validate: false,
     }),
     context: ({ req, res }): MyContext => ({
