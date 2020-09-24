@@ -1,3 +1,5 @@
+import { CartItem } from "./../entities/cartItem";
+import { getUserId } from "./../utils/getUserId";
 import { isAuth } from "./../middleware/isAuth";
 import { hash, verify } from "argon2";
 import jwt from "jsonwebtoken";
@@ -13,7 +15,7 @@ import {
   Resolver,
   UseMiddleware,
 } from "type-graphql";
-import { getConnection, MoreThan } from "typeorm";
+import { createQueryBuilder, getConnection, MoreThan } from "typeorm";
 import { Permissions, User } from "./../entities/user";
 import { MyContext } from "../types/MyContext";
 import jwt_decode from "jwt-decode";
@@ -65,20 +67,16 @@ export const jwtSecret = "shibli";
 export class UserResolver {
   @Query(() => User, { nullable: true })
   async me(@Ctx() { req }: MyContext) {
-    const { token } = await req.cookies;
     let userId;
-    if (token) {
-      const response = jwt.verify(token, jwtSecret);
-      const idS = JSON.stringify(response);
-      const idP = JSON.parse(idS);
-      userId = idP.userId;
+    if (req.cookies.token) {
+      userId = await getUserId(req.cookies.token);
     }
 
     if (!userId) {
       return null;
     }
 
-    const user = await User.findOne({ id: userId });
+    const user = await User.findOne(userId);
 
     return user;
   }
