@@ -1,5 +1,13 @@
 import { CartItem } from "./../entities/cartItem";
-import { Arg, Ctx, Int, Mutation, Resolver, UseMiddleware } from "type-graphql";
+import {
+  Arg,
+  Ctx,
+  Int,
+  Mutation,
+  Query,
+  Resolver,
+  UseMiddleware,
+} from "type-graphql";
 import { getConnection } from "typeorm";
 import { Item } from "./../entities/item";
 import { isAuth } from "./../middleware/isAuth";
@@ -46,5 +54,28 @@ export class CartItemResolver {
       relations: ["user", "item"],
     });
     return newCart;
+  }
+
+  @Query(() => [CartItem])
+  @UseMiddleware(isAuth)
+  async userCart(@Ctx() { req }: MyContext) {
+    const userId = await getUserId(req.cookies.token);
+
+    const cartExists = await CartItem.findOne({
+      where: {
+        user: { id: userId },
+      },
+    });
+
+    if (cartExists) {
+      const cart = await CartItem.find({
+        where: {
+          user: { id: userId },
+        },
+        relations: ["user", "item"],
+      });
+      return cart;
+    }
+    return null;
   }
 }
