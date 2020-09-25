@@ -24,7 +24,9 @@ export class CartItem extends BaseEntity {
   quantity!: number;
 
   @Field()
-  @ManyToOne(() => Item)
+  @ManyToOne(() => Item, {
+    onDelete: "CASCADE",
+  })
   item!: Item;
 
   @Field()
