@@ -54,7 +54,7 @@ export class User extends BaseEntity {
   permission: [Permissions];
 
   @Field(() => CartItem, { nullable: true })
-  @OneToMany(() => CartItem, (cartItem) => cartItem.user, { nullable: true })
+  @OneToMany(() => CartItem, (cartItem) => cartItem)
   cart: CartItem[];
 
   @OneToMany(() => Item, (item) => item.creator)
